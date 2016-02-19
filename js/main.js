@@ -4,7 +4,7 @@ import { GridTable } from './GridTable';
 import {combineReducers} from 'redux';
 import {thunk} from 'redux-thunk';
 import {Provider} from 'react-redux';
-import configStore from './ConfigStore';
+import configureStore from './ConfigStore';
 import gridTableReducer from './GridTableStore';
 
 class Main extends React.Component {
@@ -17,7 +17,7 @@ class Main extends React.Component {
 	}
 }
 
-const store = configStore(combineReducers({gridTableReducer}));
+const store = configureStore(combineReducers({gridTableReducer}));
 ReactDOM.render(
 	<Provider store={store}>
 		<Main />

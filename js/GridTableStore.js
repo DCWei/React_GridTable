@@ -1,4 +1,4 @@
-import {actionType} from './constant/actionType';
+import actionType from './constant/actionType';
 
 const initialState = {
 	status: 0,
@@ -63,10 +63,10 @@ const initialState = {
 	]
 };
 
-export default gridTableReducer = (state=initialState, action={}) => {
+export default function gridTableReducer(state=initialState, action={}) {
 	switch(action.Type)
 	{
-		case actionType.QUERY_NEXT_PAGE:
+		case actionType.CHANGE_CURRENT_PAGE:
 			return {
 				...state,
 				pagination: action.data
