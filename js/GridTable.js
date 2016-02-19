@@ -16,16 +16,49 @@ class TableHead extends React.Component {
 }
 
 class TableFoot extends React.Component {
+	componentDidMount() {
+		
+	}
+	changeBtnStyle(e) {
+		var $target = $(e.target);
+
+		if(!$target.hasClass('disable'))
+		{
+			switch(e.type)
+			{
+				case "mouseover":
+					break;
+				case "mousedown":
+					break;
+				case "mouseup":
+					break;
+				case "click":
+					break;
+				default:
+					break;
+			}
+		}
+	}
 	render() {
 		console.log(this.props.colnum);
 		return (
 			<tfoot>
 				<tr>
-					<td colSpan={this.props.colnum}>
-						<div className="pageControl">
-							<div>Records: 1 - 6 / 6</div>
-							<div></div>
-						</div>
+					<td colSpan={this.props.colnum} className="pagerBar">
+						<ul className="pageControl">
+							<ul>
+								<li>Records: 1 - 6 / 6</li>
+								<li className="page_btn btn_first"  onMouseOver={this.changeBtnStyle} onMouseLeave={this.changeBtnStyle} onClick={this.changeBtnStyle} onMouseDown={this.changeBtnStyle} onMouseUp={this.changeBtnStyle}></li>
+								<li className="page_btn btn_prev"></li>
+								<li className="pageInput">
+									Page:&nbsp;&nbsp;
+									<input type="text" className="currentPageInput" defaultValue="1"/>
+									&nbsp;&nbsp;/&nbsp;&nbsp;0
+								</li>
+								<li className="page_btn btn_next"></li>
+								<li className="page_btn btn_last"></li>
+							</ul>
+						</ul>
 					</td>
 				</tr>
 			</tfoot>
@@ -66,7 +99,7 @@ class Row extends React.Component {
 class HeadCell extends React.Component {
 	render() {
 		return (
-			<th>{this.props.data.label}</th>
+			<td>{this.props.data.label}</td>
 		);
 	}
 }
