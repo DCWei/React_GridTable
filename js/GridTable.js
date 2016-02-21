@@ -1,5 +1,9 @@
 import * as React from 'react';
 import '../css/GridTable.css';
+import {bindActionCreators} from "redux";
+import { connect } from 'react-redux';
+import * as actions from './GridTableActions';
+import Immutable from 'immutable';
 
 class TableHead extends React.Component {
 	render() {
@@ -16,47 +20,34 @@ class TableHead extends React.Component {
 }
 
 class TableFoot extends React.Component {
+	constructor(props) {
+		super(props);
+		this.ChangeCurrentPageCallback = ::this.ChangeCurrentPageCallback;
+	}
 	componentDidMount() {
 		
 	}
-	changeBtnStyle(e) {
-		var $target = $(e.target);
-
-		if(!$target.hasClass('disable'))
-		{
-			switch(e.type)
-			{
-				case "mouseover":
-					break;
-				case "mousedown":
-					break;
-				case "mouseup":
-					break;
-				case "click":
-					break;
-				default:
-					break;
-			}
-		}
+	ChangeCurrentPageCallback(NewPageNum) {
+		console.log(NewPageNum);
+		//this.props.actions.changeCurrentPage(NewPageNum);
 	}
 	render() {
-		console.log(this.props.colnum);
 		return (
 			<tfoot>
 				<tr>
-					<td colSpan={this.props.colnum} className="pagerBar">
+					<td colSpan={this.props.columns.length} className="pagerBar">
 						<ul className="pageControl">
 							<ul>
 								<li>Records: 1 - 6 / 6</li>
-								<li className="page_btn btn_first"  onMouseOver={this.changeBtnStyle} onMouseLeave={this.changeBtnStyle} onClick={this.changeBtnStyle} onMouseDown={this.changeBtnStyle} onMouseUp={this.changeBtnStyle}></li>
-								<li className="page_btn btn_prev"></li>
+								<li className="page_btn btn_first"></li>
+								<li className="page_btn btn_prev" onClick={this.ChangeCurrentPageCallback(this.props.pageInfo.pageNum - 1)}></li>
 								<li className="pageInput">
 									Page:&nbsp;&nbsp;
-									<input type="text" className="currentPageInput" defaultValue="1"/>
-									&nbsp;&nbsp;/&nbsp;&nbsp;0
+									<input type="text" className="currentPageInput" defaultValue="1" value={this.props.pageInfo.pageNum}/>
+									&nbsp;&nbsp;/&nbsp;&nbsp;
 								</li>
-								<li className="page_btn btn_next"></li>
-								<li className="page_btn btn_last"></li>
+								<li className="page_btn btn_next" onClick={this.ChangeCurrentPageCallback(this.props.pageInfo.pageNum + 1)}></li>
+								<li className="page_btn btn_last" ></li>
 							</ul>
 						</ul>
 					</td>
@@ -112,14 +103,21 @@ class Cell extends React.Component {
 	}
 }
 
-export class GridTable extends React.Component {
+class GridTable extends React.Component {
 	render() {
 		return (
 			<table className="gridTable">
-				<TableHead columns={this.props.data.columns} />
-				<TableBody data={this.props.data} />
-				<TableFoot colnum={this.props.data.columns.length}/>
+				<TableHead columns={this.props.columns} />
+				<TableBody data={this.props} />
+				<TableFoot columns={this.props.columns} pageInfo={this.props.pagination} actions={this.props.actions}/>
 			</table>
 		); 
 	}
 }
+
+export default connect(
+	state => state.gridTableReducer.toJS(),
+	dispatch => ({
+		actions: bindActionCreators(actions, dispatch)
+	})
+)(GridTable)

@@ -1,10 +1,17 @@
-import {createStore, compose, applyMiddleware} from 'redux';
-import thunk from 'redux-thunk';
+import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
+import thunkMiddleware from 'redux-thunk';
+import createLogger from 'redux-logger';
+import gridTableReducer from './GridTableReducer';
 
-const finalCreateStore = compose(
-	applyMiddleware(thunk)(createStore)
-)(createStore);
+const loggerMiddleware = createLogger();
 
-export default function configureStore(reducer, initialState) {
-  return finalCreateStore(reducer, initialState);
-}
+export default function configureStore(initialState) {
+	return createStore(
+		combineReducers({gridTableReducer}),
+		initialState,
+		applyMiddleware(
+			thunkMiddleware,
+			loggerMiddleware
+		)
+	);
+};
