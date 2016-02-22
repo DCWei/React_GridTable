@@ -3,10 +3,14 @@ import Immutable from 'immutable';
 
 const initialState = Immutable.fromJS({
 	status: 0,
-	totalCount: 10,
+	
 	pagination: {
 		pageNum: 1,
-		pageSize: 20
+		pageSize: 20,
+		totalPage: 1,
+		totalCount: 1,
+		entryStart: 1,
+		entryEnd: 1,
 	},
 	sorting: {
 		sortColumn: "trigger_time",
@@ -70,6 +74,18 @@ export default function gridTableReducer(state = initialState, action = {}) {
 	{
 		case actionType.CHANGE_CURRENT_PAGE:
 			return state.mergeDeep({pagination:{pageNum: action.PageNum}});
+		case actionType.LOAD_DATA:
+			let newRecords = action.data.data.commands;
+			let newPagination = {
+				pageNum: action.data.data.pages.current_page,
+				totalPage: action.data.data.pages.total_page,
+				totalCount: action.data.data.pages.total_records,
+				entryStart: 1,
+				entryEnd: records.length,
+			};
+
+			return state.mergeDeep({pagination: newPagination})
+						.mergeDeep({records: newRecords});
 		default:
 			return state;
 	}

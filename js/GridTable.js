@@ -5,6 +5,25 @@ import { connect } from 'react-redux';
 import * as actions from './GridTableActions';
 import Immutable from 'immutable';
 
+var ajaxParam = {
+  "param": {
+    "time_type": "2",
+    "from_time": "",
+    "to_time": "",
+    "message_id": "0",
+    "search_user": "",
+    "search_status": [
+      "1",
+      "2",
+      "4"
+    ],
+    "order_by": "trigger_time",
+    "order_direction": "0",
+    "page_num": "1",
+    "page_size": "20"
+  }
+};
+
 class TableHead extends React.Component {
 	render() {
 		return (
@@ -22,32 +41,42 @@ class TableHead extends React.Component {
 class TableFoot extends React.Component {
 	constructor(props) {
 		super(props);
-		this.ChangeCurrentPageCallback = ::this.ChangeCurrentPageCallback;
 	}
 	componentDidMount() {
-		
+		if(this.props.pageInfo.pageNum === 1) {
+			$('.pageControl .btn_first').addClass('disable');
+			$('.pageControl .btn_prev').addClass('disable');
+		}
+		if(this.props.pageInfo.pageNum === this.props.pageInfo.totalPage) {
+			$('.pageControl .btn_last').addClass('disable');
+			$('.pageControl .btn_next').addClass('disable');
+		}
 	}
-	ChangeCurrentPageCallback(NewPageNum) {
-		console.log(NewPageNum);
-		//this.props.actions.changeCurrentPage(NewPageNum);
+	ChangeCurrentPage(e, changeCurrentPage, pageNum, pageInfo) {
+		if(!$(e.target).hasClass('disable')) {
+			if(pageNum >= 1 && pageNum <= pageInfo.totalPage) {
+				changeCurrentPage(pageNum);
+			}
+		}
 	}
 	render() {
+		let {columns, actions, pageInfo, others} = this.props;
 		return (
 			<tfoot>
 				<tr>
-					<td colSpan={this.props.columns.length} className="pagerBar">
+					<td colSpan={columns.length} className="pagerBar">
 						<ul className="pageControl">
 							<ul>
-								<li>Records: 1 - 6 / 6</li>
-								<li className="page_btn btn_first"></li>
-								<li className="page_btn btn_prev" onClick={this.ChangeCurrentPageCallback(this.props.pageInfo.pageNum - 1)}></li>
+								<li>Records: {pageInfo.entryStart} - {pageInfo.entryEnd} / {pageInfo.totalCount}</li>
+								<li className="page_btn btn_first" onClick={e => {this.ChangeCurrentPage(e, actions.changeCurrentPage,1, pageInfo)}}></li>
+								<li className="page_btn btn_prev" onClick={e => {this.ChangeCurrentPage(e, actions.changeCurrentPage,pageInfo.pageNum - 1, pageInfo)}}></li>
 								<li className="pageInput">
 									Page:&nbsp;&nbsp;
-									<input type="text" className="currentPageInput" defaultValue="1" value={this.props.pageInfo.pageNum}/>
-									&nbsp;&nbsp;/&nbsp;&nbsp;
+									<input type="text" className="currentPageInput" defaultValue={pageInfo.pageNum} value={pageInfo.pageNum}/>
+									&nbsp;&nbsp;/&nbsp;&nbsp;{pageInfo.totalPage}
 								</li>
-								<li className="page_btn btn_next" onClick={this.ChangeCurrentPageCallback(this.props.pageInfo.pageNum + 1)}></li>
-								<li className="page_btn btn_last" ></li>
+								<li className="page_btn btn_next" onClick={e => {this.ChangeCurrentPage(e, actions.changeCurrentPage,pageInfo.pageNum + 1, pageInfo)}}></li>
+								<li className="page_btn btn_last" onClick={e => {this.ChangeCurrentPage(e, actions.changeCurrentPage,pageInfo.totalPage, pageInfo)}}></li>
 							</ul>
 						</ul>
 					</td>
@@ -104,12 +133,16 @@ class Cell extends React.Component {
 }
 
 class GridTable extends React.Component {
+	componentDidMount() {
+	}
 	render() {
+		let {status, actions, columns, records, pagination, others} = this.props;
+		console.log(pagination);
 		return (
 			<table className="gridTable">
-				<TableHead columns={this.props.columns} />
+				<TableHead columns={columns} />
 				<TableBody data={this.props} />
-				<TableFoot columns={this.props.columns} pageInfo={this.props.pagination} actions={this.props.actions}/>
+				<TableFoot columns={columns} pageInfo={pagination} actions={actions}/>
 			</table>
 		); 
 	}
