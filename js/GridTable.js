@@ -43,40 +43,58 @@ class TableFoot extends React.Component {
 		super(props);
 	}
 	componentDidMount() {
-		if(this.props.pageInfo.pageNum === 1) {
-			$('.pageControl .btn_first').addClass('disable');
-			$('.pageControl .btn_prev').addClass('disable');
-		}
-		if(this.props.pageInfo.pageNum === this.props.pageInfo.totalPage) {
-			$('.pageControl .btn_last').addClass('disable');
-			$('.pageControl .btn_next').addClass('disable');
-		}
 	}
-	ChangeCurrentPage(e, changeCurrentPage, pageNum, pageInfo) {
+	ChangeCurrentPage(e, pageNum, props) {
 		if(!$(e.target).hasClass('disable')) {
-			if(pageNum >= 1 && pageNum <= pageInfo.totalPage) {
-				changeCurrentPage(pageNum);
+			if(pageNum >= 1 && pageNum <= props.pagination.totalPage) {
+				props.actions.changeCurrentPage(pageNum);
 			}
 		}
 	}
+	UpdateBtnStatus() {
+		let $btn_first = $('.pageControl .btn_first');
+		let $btn_prev = $('.pageControl .btn_prev');
+		let $btn_next = $('.pageControl .btn_next');
+		let $btn_last = $('.pageControl .btn_last');
+		if(this.props.pagination.pageNum === 1) {
+			$btn_first.addClass('disable');
+			$btn_prev.addClass('disable');
+		}
+		else{
+			$btn_first.removeClass('disable');
+			$btn_prev.removeClass('disable');
+		}
+
+		if(this.props.pagination.pageNum === this.props.pagination.totalPage) {
+			$btn_last.addClass('disable');
+			$btn_next.addClass('disable');
+		}
+		else {
+			$btn_last.removeClass('disable');
+			$btn_next.removeClass('disable');
+		}
+	}
 	render() {
-		let {columns, actions, pageInfo, others} = this.props;
+		console.log("render >>>");
+		let {columns, actions, pagination} = this.props;
+		this.UpdateBtnStatus();
+		console.log("render <<<");
 		return (
 			<tfoot>
 				<tr>
 					<td colSpan={columns.length} className="pagerBar">
 						<ul className="pageControl">
 							<ul>
-								<li>Records: {pageInfo.entryStart} - {pageInfo.entryEnd} / {pageInfo.totalCount}</li>
-								<li className="page_btn btn_first" onClick={e => {this.ChangeCurrentPage(e, actions.changeCurrentPage,1, pageInfo)}}></li>
-								<li className="page_btn btn_prev" onClick={e => {this.ChangeCurrentPage(e, actions.changeCurrentPage,pageInfo.pageNum - 1, pageInfo)}}></li>
+								<li>Records: {pagination.entryStart} - {pagination.entryEnd} / {pagination.totalCount}</li>
+								<li className="page_btn btn_first" onClick={e => {this.ChangeCurrentPage(e, 1, this.props)}}></li>
+								<li className="page_btn btn_prev" onClick={e => {this.ChangeCurrentPage(e, pagination.pageNum - 1, this.props)}}></li>
 								<li className="pageInput">
 									Page:&nbsp;&nbsp;
-									<input type="text" className="currentPageInput" defaultValue={pageInfo.pageNum} value={pageInfo.pageNum}/>
-									&nbsp;&nbsp;/&nbsp;&nbsp;{pageInfo.totalPage}
+									<input type="text" className="currentPageInput" defaultValue={pagination.pageNum} value={pagination.pageNum}/>
+									&nbsp;&nbsp;/&nbsp;&nbsp;{pagination.totalPage}
 								</li>
-								<li className="page_btn btn_next" onClick={e => {this.ChangeCurrentPage(e, actions.changeCurrentPage,pageInfo.pageNum + 1, pageInfo)}}></li>
-								<li className="page_btn btn_last" onClick={e => {this.ChangeCurrentPage(e, actions.changeCurrentPage,pageInfo.totalPage, pageInfo)}}></li>
+								<li className="page_btn btn_next" onClick={e => {this.ChangeCurrentPage(e, pagination.pageNum + 1, this.props)}}></li>
+								<li className="page_btn btn_last" onClick={e => {this.ChangeCurrentPage(e, pagination.totalPage, this.props)}}></li>
 							</ul>
 						</ul>
 					</td>
@@ -133,16 +151,20 @@ class Cell extends React.Component {
 }
 
 class GridTable extends React.Component {
-	componentDidMount() {
+	componentWillMount() {
+		console.log('componentWillMount >>>');
+		let {pagination, sorting} = this.props;
+		let data = {pagination, sorting};
+		this.props.actions.loadData();
+		console.log('componentWillMount <<<');
 	}
 	render() {
 		let {status, actions, columns, records, pagination, others} = this.props;
-		console.log(pagination);
 		return (
 			<table className="gridTable">
 				<TableHead columns={columns} />
 				<TableBody data={this.props} />
-				<TableFoot columns={columns} pageInfo={pagination} actions={actions}/>
+				<TableFoot columns={columns} pagination={pagination} actions={actions}/>
 			</table>
 		); 
 	}

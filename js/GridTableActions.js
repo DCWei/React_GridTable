@@ -2,17 +2,38 @@ import {actionType} from './constant/actionType';
 import getPageData from './FakeData/CommandTrackingDataSource';
 
 export function changeCurrentPage(PageNum) {
-	return dispatch => {
-		const action = {
+	return (dispatch, getState) => {
+		const actionChangePage = {
 			type: actionType.CHANGE_CURRENT_PAGE,
 			PageNum
 		};
-		dispatch(action);
+		dispatch(actionChangePage);
+
+		const newState = getState().gridTableReducer.toJS();
+		const actionLoadData = {
+			type: actionType.LOAD_DATA,
+			data: getDataFromRemote(newState)
+		};
+		dispatch(actionLoadData);
+
 	}
+	
 }
 
-export function loadData(data) {
-	const {pagination, sorting} = data;
+export function loadData() {
+	return (dispatch, getState) => {
+		const state = getState().gridTableReducer.toJS();
+		
+		const action = {
+			type: actionType.LOAD_DATA,
+			data: getDataFromRemote(state)
+		}
+		dispatch(action);
+	};
+}
+
+function getDataFromRemote(state) {
+	const {pagination, sorting, others} = state;
 	let param = {
 		"param": {
 			"time_type": "2",
@@ -28,9 +49,10 @@ export function loadData(data) {
 			"order_by": "trigger_time",
 			"order_direction": "0",
 			"page_num": "1",
-			"page_size": "20"
+			"page_size": "15"
 		}
 	};
+
 	param.param.page_num = pagination.pageNum;
 	param.param.page_size = pagination.pageSize;
 	param.param.order_by = sorting.sortColumn;
@@ -38,11 +60,6 @@ export function loadData(data) {
 		param.param.order_direction = 0;
 	else
 		param.param.order_direction = 1;
-	return dispatch => {
-		const action = {
-			type: actionType.LOAD_DATA,
-			data: getPageData(param)
-		}
-		dispatch(action);
-	};
+
+	return getPageData(param);
 }

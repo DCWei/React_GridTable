@@ -3,10 +3,9 @@ import Immutable from 'immutable';
 
 const initialState = Immutable.fromJS({
 	status: 0,
-	
 	pagination: {
 		pageNum: 1,
-		pageSize: 20,
+		pageSize: 15,
 		totalPage: 1,
 		totalCount: 1,
 		entryStart: 1,
@@ -46,26 +45,7 @@ const initialState = Immutable.fromJS({
 			label: 'All'
 		},
 	],
-	records: [
-		{
-			'id': '000C29C5C0C8-56A0F404-02E1-F625-C6E2',
-			'mother_id': '',
-			'target_group': '1',
-			'receiver_id': '000C29C5C0C8-56A0F404-02E1-F625-C6E2',
-			'user_access_id': 'root',
-			'message_id': '6009',
-			'trigger_time': '2016-02-16 12:41:54.000',
-			'update_time': '2016-02-16 15:58:30.000',
-			'total_command_items': '1',
-			'total_success': '1',
-			'total_inprogress': '0',
-			'error_description': 'Received a managed product registration request',
-			'location': '',
-			'parameters': 'Invoke service component',
-			'command_data': '',
-			'total_failure': '0',
-		}
-	]
+	records: []
 });
 
 export default function gridTableReducer(state = initialState, action = {}) {
@@ -75,17 +55,26 @@ export default function gridTableReducer(state = initialState, action = {}) {
 		case actionType.CHANGE_CURRENT_PAGE:
 			return state.mergeDeep({pagination:{pageNum: action.PageNum}});
 		case actionType.LOAD_DATA:
-			let newRecords = action.data.data.commands;
+			console.log("Update loaded data to state.");
+			console.log('commands:');
+			console.log(action.data.data.commands);
+			let newRecords = action.data.data.commands.map(row => { 
+				let data = row;
+				data.total_inprogress = parseInt(data.total_command_items) - (parseInt(data.total_success) + parseInt(data.total_failure));
+				return data;
+			});
+			console.log('newRecords');
+			console.log(newRecords);
 			let newPagination = {
 				pageNum: action.data.data.pages.current_page,
 				totalPage: action.data.data.pages.total_page,
 				totalCount: action.data.data.pages.total_records,
-				entryStart: 1,
-				entryEnd: records.length,
+				entryStart: state.toJS().pagination.pageSize*(action.data.data.pages.current_page - 1) + 1,
+				entryEnd: state.toJS().pagination.pageSize*(action.data.data.pages.current_page - 1) + newRecords.length,
 			};
 
 			return state.mergeDeep({pagination: newPagination})
-						.mergeDeep({records: newRecords});
+						.updateIn(['records'], obj => newRecords);
 		default:
 			return state;
 	}
