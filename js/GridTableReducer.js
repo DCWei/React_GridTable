@@ -10,41 +10,12 @@ const initialState = Immutable.fromJS({
 		totalCount: 1,
 		entryStart: 1,
 		entryEnd: 1,
+		pageSizeList: [1, 5, 10, 15, 30]
 	},
 	sorting: {
 		sortColumn: "trigger_time",
-		sortOrder: "DESC"
+		sortOrder: "desc"
 	},
-	columns: [
-		{
-			key: 'trigger_time',
-			label: 'Issued'
-		},
-		{
-			key: 'message_id',
-			label: 'Command'
-		},
-		{
-			key: 'user_access_id',
-			label: 'User'
-		},
-		{
-			key: 'total_success',
-			label: 'Successful'
-		},
-		{
-			key: 'total_failure',
-			label: 'Unsuccessful'
-		},
-		{
-			key: 'total_inprogress',
-			label: 'InProgress'
-		},
-		{
-			key: 'total_command_items',
-			label: 'All'
-		},
-	],
 	records: []
 });
 
@@ -54,6 +25,9 @@ export default function gridTableReducer(state = initialState, action = {}) {
 	{
 		case actionType.CHANGE_CURRENT_PAGE:
 			return state.mergeDeep({pagination:{pageNum: action.PageNum}});
+		case actionType.CHANGE_PAGE_SIZE_SETTING:
+			console.log('action.PageSize=' + action.PageSize);
+			return state.mergeDeep({pagination:{pageSize: action.PageSize}});
 		case actionType.LOAD_DATA:
 			console.log("Update loaded data to state.");
 			console.log('commands:');

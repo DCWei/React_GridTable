@@ -12,6 +12,43 @@ import Immutable from 'immutable';
 
 class Main extends React.Component {
 	render() {
+		let columns = [
+			{
+				key: 'trigger_time',
+				label: 'Issued',
+				sortable: true
+			},
+			{
+				key: 'message_id',
+				label: 'Command',
+				sortable: true
+			},
+			{
+				key: 'user_access_id',
+				label: 'User',
+				sortable: true
+			},
+			{
+				key: 'total_success',
+				label: 'Successful',
+				width: 100
+			},
+			{
+				key: 'total_failure',
+				label: 'Unsuccessful',
+				width: 100
+			},
+			{
+				key: 'total_inprogress',
+				label: 'InProgress',
+				width: 100
+			},
+			{
+				key: 'total_command_items',
+				label: 'All',
+				width: 100
+			},
+		];
 		return (
 			<div className="main">
 				<GridTable />
@@ -20,41 +57,7 @@ class Main extends React.Component {
 	}
 }
 
-const test = Immutable.fromJS({
-	a: {
-		b: 1,
-		c: 2,
-		d: 3
-	},
-	pagination: {
-		pageNum: 1,
-		pageSize: 20,
-		totalPage: 1,
-		totalCount: 1,
-		entryStart: 1,
-		entryEnd: 1,
-	}
-});
-
-//var ss = test.toJS().pagination;
-var kk = {
-	e: 11,
-	f: 22
-}
-var ss = {
-	pageSize: 30,
-	totalPage: 2,
-	totalCount: 32,
-	entryStart: 2,
-	entryEnd: 30
-};
-var cc = test.mergeDeep({pagination: ss}).mergeDeep({a: kk});
-
-console.log(cc.toJS());
-//console.log(ss.toJS());
-
 const store = configureStore();
-console.log(store.getState().gridTableReducer.toJS());
 
 ReactDOM.render(
 	(<Provider store={store}>

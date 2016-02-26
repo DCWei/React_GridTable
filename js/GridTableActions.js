@@ -20,6 +20,23 @@ export function changeCurrentPage(PageNum) {
 	
 }
 
+export function changePageSizeSetting(newPageSize) {
+	return (dispatch, getState) => {
+		const actChangePageSize = {
+			type: actionType.CHANGE_PAGE_SIZE_SETTING,
+			PageSize: newPageSize
+		}
+		dispatch(actChangePageSize);
+
+		const newState = getState().gridTableReducer.toJS();
+		const actionLoadData = {
+			type: actionType.LOAD_DATA,
+			data: getDataFromRemote(newState)
+		};
+		dispatch(actionLoadData);
+	};
+}
+
 export function loadData() {
 	return (dispatch, getState) => {
 		const state = getState().gridTableReducer.toJS();

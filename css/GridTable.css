@@ -1,8 +1,8 @@
 table {
     border-collapse: collapse;
 }
-table, tr, td {
-	border: solid 1px #b2b2b2;
+table, tr, td, th {
+    border: solid 1px #dcdcdc;
     border-spacing: 0;
 }
 
@@ -10,13 +10,26 @@ table, tr, td {
     font-size: 12px;
     font-family: Arial,Helvetica,sans-serif;
     font-weight: normal;
-    width: 60%;
+    width: 100%;
     margin: auto;
     line-height: 1.2;
+    display: block;
+}
+
+.gridTable td, .gridTable th {
+    height: 30px;
+    text-align: left;
+    padding: 8px;
+}
+
+.gridTable th {
+    border-bottom: 1px solid #dcdcdc;
+    color: #777;
+    font-weight: bold;
 }
 
 .gridTable thead,tfoot {
-	background-color: #f5f5f5;
+    background-color: #f5f5f5;
 }
 
 .gridTable tfoot td {
@@ -26,14 +39,14 @@ table, tr, td {
 
 .pageControl {
     float: right;
-    height: 26px;
+    height: 37px;
     margin: 0;
     padding-right: 10px;
     vertical-align: middle;
 }
 
 .pageControl .pageInput {
-    line-height: 24px;
+    line-height: 37px;
 }
 
 .pageControl li {
@@ -42,16 +55,17 @@ table, tr, td {
     font-family: Arial,Helvetica,sans-serif;
     font-size : 11px;
     font-weight: normal;
-    height: 26px;
+    height: 37px;
     margin-left: 2px;
-    line-height: 26px;
+    line-height: 37px;
+    vertical-align: middle;
 }
 
 .pageControl .page_btn {
     background: url('../img/pager_btn.gif') no-repeat center;
     width: 17px;
     height: 17px;
-    margin-top: 4px;
+    margin-top: 8px;
     cursor: pointer;
 }
 

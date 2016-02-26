@@ -1,9 +1,13 @@
-import * as React from 'react';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import '../css/GridTable.css';
 import {bindActionCreators} from "redux";
 import { connect } from 'react-redux';
 import * as actions from './GridTableActions';
 import Immutable from 'immutable';
+import GridTableHeader from './GridTableHeader';
+import GridTableFoot from './GridTableFoot';
+import GridTableBody from './GridTableBody';
 
 var ajaxParam = {
   "param": {
@@ -24,133 +28,38 @@ var ajaxParam = {
   }
 };
 
-class TableHead extends React.Component {
-	render() {
-		return (
-			<thead>
-				<tr>
-					{this.props.columns.map(function(col) {
-						return <HeadCell key={col.key} data={col} />;
-					})}
-				</tr>
-			</thead>
-		);
+class GridTable extends React.Component {
+	static propTypes = {
+		columnMinWidth: PropTypes.number,
+		columns: PropTypes.arrayOf(PropTypes.object),
+		data: PropTypes.arrayOf(PropTypes.object),
+		totalCount: PropTypes.number,
+		page: PropTypes.number,
+		pageSize: PropTypes.number,
+		sortInfo: PropTypes.object,
+		isTextOverflowEllipsis: PropTypes.bool,
+		onSortChange: PropTypes.func,
+		onPageChange: PropTypes.func
 	}
-}
-
-class TableFoot extends React.Component {
+	static defaultProps = {
+		columnMinWidth: 100,
+		columns: [],
+		data: [],
+		totalCount: 0,
+		page: 1,
+		pageSize: 20,
+		sortInfo: {},
+		isTextOverflowEllipsis: true
+	}
 	constructor(props) {
 		super(props);
+		this.state = {
+			rowHeight: 30,
+			rowWidth: 600,
+			autoColumnWidth
+		};
+		this.updateRowWidth = ::this.updateRowWidth;
 	}
-	componentDidMount() {
-	}
-	ChangeCurrentPage(e, pageNum, props) {
-		if(!$(e.target).hasClass('disable')) {
-			if(pageNum >= 1 && pageNum <= props.pagination.totalPage) {
-				props.actions.changeCurrentPage(pageNum);
-			}
-		}
-	}
-	UpdateBtnStatus() {
-		let $btn_first = $('.pageControl .btn_first');
-		let $btn_prev = $('.pageControl .btn_prev');
-		let $btn_next = $('.pageControl .btn_next');
-		let $btn_last = $('.pageControl .btn_last');
-		if(this.props.pagination.pageNum === 1) {
-			$btn_first.addClass('disable');
-			$btn_prev.addClass('disable');
-		}
-		else{
-			$btn_first.removeClass('disable');
-			$btn_prev.removeClass('disable');
-		}
-
-		if(this.props.pagination.pageNum === this.props.pagination.totalPage) {
-			$btn_last.addClass('disable');
-			$btn_next.addClass('disable');
-		}
-		else {
-			$btn_last.removeClass('disable');
-			$btn_next.removeClass('disable');
-		}
-	}
-	render() {
-		console.log("render >>>");
-		let {columns, actions, pagination} = this.props;
-		this.UpdateBtnStatus();
-		console.log("render <<<");
-		return (
-			<tfoot>
-				<tr>
-					<td colSpan={columns.length} className="pagerBar">
-						<ul className="pageControl">
-							<ul>
-								<li>Records: {pagination.entryStart} - {pagination.entryEnd} / {pagination.totalCount}</li>
-								<li className="page_btn btn_first" onClick={e => {this.ChangeCurrentPage(e, 1, this.props)}}></li>
-								<li className="page_btn btn_prev" onClick={e => {this.ChangeCurrentPage(e, pagination.pageNum - 1, this.props)}}></li>
-								<li className="pageInput">
-									Page:&nbsp;&nbsp;
-									<input type="text" className="currentPageInput" defaultValue={pagination.pageNum} value={pagination.pageNum}/>
-									&nbsp;&nbsp;/&nbsp;&nbsp;{pagination.totalPage}
-								</li>
-								<li className="page_btn btn_next" onClick={e => {this.ChangeCurrentPage(e, pagination.pageNum + 1, this.props)}}></li>
-								<li className="page_btn btn_last" onClick={e => {this.ChangeCurrentPage(e, pagination.totalPage, this.props)}}></li>
-							</ul>
-						</ul>
-					</td>
-				</tr>
-			</tfoot>
-		);
-	}
-}
-
-class TableBody extends React.Component {
-	render() {
-		var that = this;
-		return (
-			<tbody>
-				{this.props.data.records.map(function(row, i){
-					return <Row key={i} data={row} columns={that.props.data.columns} />;
-				})}
-			</tbody>
-		);
-	}
-}
-
-class Row extends React.Component {
-	render() {
-		var that = this;
-		return (
-			<tr>
-				{
-					this.props.columns.map(
-						function(col){
-							return <Cell key={col.key} data={that.props.data[col.key]} />;
-						}
-					)
-				}
-			</tr>
-		);
-	}
-}
-
-class HeadCell extends React.Component {
-	render() {
-		return (
-			<td>{this.props.data.label}</td>
-		);
-	}
-}
-
-class Cell extends React.Component {
-	render() {
-		return (
-			<td>{this.props.data}</td>
-		);
-	}
-}
-
-class GridTable extends React.Component {
 	componentWillMount() {
 		console.log('componentWillMount >>>');
 		let {pagination, sorting} = this.props;
@@ -158,14 +67,73 @@ class GridTable extends React.Component {
 		this.props.actions.loadData();
 		console.log('componentWillMount <<<');
 	}
+	componentWillReceiveProps() {
+		this.updateRowWidth();
+	}
+	updateRowWidth(rowWidth) {
+		const dom = ReactDOM.findDOMNode(this);
+		const {
+			maxHeight,
+			columnMinWidth,
+			columns,
+		} = this.props;
+
+		const {minRowWidth} = this.state;
+		let offset = 0;
+
+		rowWidth = dom.offsetWidth;
+
+		if(rowWidth && this.state.rowWidth !== rowWidth) {
+			let autoColumnWidth = rowWidth;
+
+			let numOfAutoWithField = columns.length;
+
+			columns.forEach(column => {
+				if(column.width) {
+					numOfAutoWithField--;
+					autoColumnWidth = autoColumnWidth - column.width;
+				}
+			});
+
+			if(numOfAutoWithField) {
+				autoColumnWidth = autoColumnWidth / numOfAutoWithField;
+				if(autoColumnWidth < columnMinWidth) {
+					autoColumnWidth = columnMinWidth;
+				}
+			}
+
+			this.setState({
+				rowWidth,
+				autoColumnWidth
+			});
+		}
+	}
 	render() {
-		let {status, actions, columns, records, pagination, others} = this.props;
+		let {
+			columnMinWidth,
+			columns,
+			data,
+			totalCount,
+			page,
+			pageSize,
+			sortInfo,
+			isTextOverflowEllipsis,
+			onSortChange,
+			onPageChange
+		} = this.props;
+
 		return (
-			<table className="gridTable">
-				<TableHead columns={columns} />
-				<TableBody data={this.props} />
-				<TableFoot columns={columns} pagination={pagination} actions={actions}/>
-			</table>
+			<div>
+				<table className="gridTable">
+					<GridTableHeader
+						onSortChange={onSortChange}
+						rowHeight={this.state.rowHeight}
+						columns={columns}
+						rowWidth={this.state.rowWidth}
+						sortInfo={sortInfo}
+						isTextOverflowEllipsis={isTextOverflowEllipsis} />
+				</table>
+			</div>
 		); 
 	}
 }
