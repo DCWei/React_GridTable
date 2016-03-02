@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 import '../css/GridTable.css';
 import {bindActionCreators} from "redux";
@@ -55,34 +55,29 @@ class GridTable extends React.Component {
 		super(props);
 		this.state = {
 			rowHeight: 30,
-			rowWidth: 600,
-			autoColumnWidth
+			autoColumnWidth:100
 		};
 		this.updateRowWidth = ::this.updateRowWidth;
+		this.updateMinRowWidth = ::this.updateMinRowWidth;
 	}
 	componentWillMount() {
-		console.log('componentWillMount >>>');
-		let {pagination, sorting} = this.props;
-		let data = {pagination, sorting};
-		this.props.actions.loadData();
-		console.log('componentWillMount <<<');
 	}
-	componentWillReceiveProps() {
-		this.updateRowWidth();
+	componentWillReceiveProps(newProps) {
+		this.updateMinRowWidth();
 	}
 	updateRowWidth(rowWidth) {
 		const dom = ReactDOM.findDOMNode(this);
 		const {
 			maxHeight,
 			columnMinWidth,
-			columns,
+			columns
 		} = this.props;
 
 		const {minRowWidth} = this.state;
 		let offset = 0;
 
 		rowWidth = dom.offsetWidth;
-
+		console.log('GridTable.updateRowWidth: rowWidth= ', rowWidth);
 		if(rowWidth && this.state.rowWidth !== rowWidth) {
 			let autoColumnWidth = rowWidth;
 
@@ -108,14 +103,27 @@ class GridTable extends React.Component {
 			});
 		}
 	}
+	updateMinRowWidth() {
+		let minRowWidth = 0;
+		this.props.columns.forEach(column => {
+			minRowWidth += column.width || this.props.columnMinWidth;
+		});
+		console.log('GridTable.updateMinRowWidth: minRowWidth= ', minRowWidth);
+		this.setState({
+			rowMinWidth: minRowWidth
+		});
+	}
 	render() {
+		console.log('GridTable.render(): this.props: ', this.props);
+		console.log('GridTable.render(): this.state: ', this.state);
 		let {
 			columnMinWidth,
 			columns,
 			data,
-			totalCount,
 			page,
 			pageSize,
+			totalCount,
+			pageSizeList,
 			sortInfo,
 			isTextOverflowEllipsis,
 			onSortChange,
@@ -123,24 +131,37 @@ class GridTable extends React.Component {
 		} = this.props;
 
 		return (
-			<div>
-				<table className="gridTable">
+			<div className="gridTable">
+				<table>
 					<GridTableHeader
 						onSortChange={onSortChange}
 						rowHeight={this.state.rowHeight}
 						columns={columns}
 						rowWidth={this.state.rowWidth}
+						rowMinWidth={this.state.rowMinWidth}
 						sortInfo={sortInfo}
-						isTextOverflowEllipsis={isTextOverflowEllipsis} />
+						isTextOverflowEllipsis={isTextOverflowEllipsis} 
+						autoColumnWidth={this.state.autoColumnWidth}
+						columnMinWidth={columnMinWidth} />
+					<GridTableBody data={data} 
+								   columns={columns}
+								   rowHeight={this.state.rowHeight}
+								   rowWidth={this.state.rowWidth}
+								   rowMinWidth={this.state.rowMinWidth}
+								   autoColumnWidth={this.state.autoColumnWidth}
+								   isTextOverflowEllipsis={isTextOverflowEllipsis}
+								   columnMinWidth={columnMinWidth}
+								   updateRowWidth={this.updateRowWidth} />
+					<GridTableFoot onPageChange={onPageChange}
+								   page={page}
+								   pageSize={pageSize}
+								   totalCount={totalCount}
+								   pageSizeList={pageSizeList}
+								   columns={columns} />
 				</table>
 			</div>
 		); 
 	}
 }
 
-export default connect(
-	state => state.gridTableReducer.toJS(),
-	dispatch => ({
-		actions: bindActionCreators(actions, dispatch)
-	})
-)(GridTable)
+export default GridTable;

@@ -1,12 +1,13 @@
 import {actionType} from './constant/actionType';
 import getPageData from './FakeData/CommandTrackingDataSource';
 
-export function changeCurrentPage(PageNum) {
+export function changePageInfoSetting(newPageInfo) {
 	return (dispatch, getState) => {
 		const actionChangePage = {
-			type: actionType.CHANGE_CURRENT_PAGE,
-			PageNum
+			type: actionType.CHANGE_PAGE_INFO_SETTING,
+			pageInfo: newPageInfo
 		};
+		console.log('GridTableActions.changePageInfoSetting: actionChangePage=', actionChangePage);
 		dispatch(actionChangePage);
 
 		const newState = getState().gridTableReducer.toJS();
@@ -20,13 +21,13 @@ export function changeCurrentPage(PageNum) {
 	
 }
 
-export function changePageSizeSetting(newPageSize) {
+export function changeSortInfo(newSortInfo) {
 	return (dispatch, getState) => {
-		const actChangePageSize = {
-			type: actionType.CHANGE_PAGE_SIZE_SETTING,
-			PageSize: newPageSize
-		}
-		dispatch(actChangePageSize);
+		const actChangeSortInfo = {
+			type: actionType.CHANGE_SORT_INFO_SETTING,
+			sortInfo: newSortInfo
+		};
+		dispatch(actChangeSortInfo);
 
 		const newState = getState().gridTableReducer.toJS();
 		const actionLoadData = {
@@ -34,7 +35,7 @@ export function changePageSizeSetting(newPageSize) {
 			data: getDataFromRemote(newState)
 		};
 		dispatch(actionLoadData);
-	};
+	}
 }
 
 export function loadData() {

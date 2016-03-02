@@ -1,8 +1,9 @@
-table {
-    border-collapse: collapse;
+.container, .main {
+    margin: 0;
+    width: 100%;
 }
-table, tr, td, th {
-    border: solid 1px #dcdcdc;
+.gridTable table, .gridTable tr, .gridTable td, .gridTable th {
+    border: solid 1px #DADADA;
     border-spacing: 0;
 }
 
@@ -14,18 +15,36 @@ table, tr, td, th {
     margin: auto;
     line-height: 1.2;
     display: block;
+    min-width: 700px;
+}
+
+.gridTable table{
+    margin: 0;
+    border-right: none;
+    display: block;
+    border-collapse: collapse;
 }
 
 .gridTable td, .gridTable th {
-    height: 30px;
-    text-align: left;
-    padding: 8px;
+    padding: 0px;
 }
 
 .gridTable th {
-    border-bottom: 1px solid #dcdcdc;
+    background: #EEEEEE;
+    border-bottom: solid 1px #DADADA;
     color: #777;
     font-weight: bold;
+}
+
+.gridTable th>div, .gridTable tbody td {
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.gridTable th>div>div, .gridTable tbody td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .gridTable thead,tfoot {
@@ -35,6 +54,81 @@ table, tr, td, th {
 .gridTable tfoot td {
     text-align: left;
     padding: 0;
+}
+
+.gridTable .sortable .sort-indicator {
+    position: relative;
+    padding-right: 18px;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+.gridTable .sortable .sort-indicator:after,
+.gridTable .sortable .sort-indicator:before {
+
+  content: "";
+
+  border-width: 0 4px 4px 4px;
+
+  border-style: solid;
+
+  border-color: #000 transparent;
+
+  visibility: visible;
+
+  right: 5px;
+
+  top: 50%;
+
+  position: absolute;
+
+  opacity: 0.3;
+
+  margin-top: -4px;
+
+}
+
+.gridTable .sortable .sort-indicator:before {
+
+  margin-top: 2px;
+
+  border-bottom: 0;
+
+  border-left: 4px solid transparent;
+
+  border-right: 4px solid transparent;
+
+  border-top: 4px solid #000;
+
+}
+
+.gridTable .sortable.sort-desc .sort-indicator:before,
+.gridTable .sortable.sort-asc .sort-indicator:before {
+
+  visibility: hidden;
+
+}
+
+.gridTable .sortable.sort-desc .sort-indicator:after,
+.gridTable .sortable.sort-asc .sort-indicator:after {
+
+  margin-top: -2px;
+
+}
+
+.gridTable .sortable.sort-desc .sort-indicator:after {
+    border-bottom: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #000;
+    visibility: visible;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    filter: alpha(opacity=60);
+    -khtml-opacity: .6;
+    -moz-opacity: .6;
+    opacity: .6;
 }
 
 .pageControl {

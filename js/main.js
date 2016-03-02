@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {combineReducers, createStore} from 'redux';
+import { connect } from 'react-redux';
+import {bindActionCreators} from 'redux';
 import {Provider} from 'react-redux';
 import configureStore from "./ConfigStore";
 import gridTableReducer from './GridTableReducer';
@@ -9,8 +10,31 @@ import DevTools from "./DevTools";
 import GridTable from './GridTable';
 import {actionType} from './constant/actionType';
 import Immutable from 'immutable';
+import * as actions from './GridTableActions';
 
 class Main extends React.Component {
+	constructor(props) {
+		super(props);
+		this.onSortChange = ::this.onSortChange;
+		this.onPageChange = ::this.onPageChange;
+	}
+	componentWillMount() {
+		let {pagination, sorting} = this.props;
+		let data = {pagination,sorting};
+		this.props.actions.loadData(data);
+	}
+	onSortChange(newSortInfo) {
+		console.log('Main.onSortChange: newSortInfo= ', newSortInfo);
+		this.props.actions.changeSortInfo(newSortInfo);
+	}
+	onPageChange(newPageInfo) {
+		console.log('Main.onPageChange: newPageInfo= ', newPageInfo);
+		let pageInfo = {
+			pageNum: newPageInfo.pageNum,
+			pageSize: newPageInfo.pageSize
+		}
+		this.props.actions.changePageInfoSetting(pageInfo);
+	}
 	render() {
 		let columns = [
 			{
@@ -51,17 +75,29 @@ class Main extends React.Component {
 		];
 		return (
 			<div className="main">
-				<GridTable />
+				<GridTable 
+					columnMinWidth={100}
+					columns={columns}
+					data={this.props.records}
+					page={parseInt(this.props.pagination.pageNum)}
+					pageSize={parseInt(this.props.pagination.pageSize)}
+					totalCount={parseInt(this.props.pagination.totalCount)}
+					pageSizeList={this.props.pagination.pageSizeList}
+					sortInfo={{key: this.props.sorting.sortColumn, direction: this.props.sorting.sortOrder}}
+					isTextOverflowEllipsis={true}
+					onSortChange={this.onSortChange}
+					onPageChange={this.onPageChange}
+				/>
 			</div>
 		);
 	}
 }
 
-const store = configureStore();
+export default connect(
+  state => state.gridTableReducer.toJS(),
+  dispatch => ({
+    actions: bindActionCreators(actions, dispatch)
+  })
+)(Main);
 
-ReactDOM.render(
-	(<Provider store={store}>
-		<Main />
-	</Provider>),
-	document.getElementById('container')
-);
+

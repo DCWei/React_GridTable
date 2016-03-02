@@ -23,11 +23,10 @@ export default function gridTableReducer(state = initialState, action = {}) {
 	console.log("Action type: " + action.type);
 	switch(action.type)
 	{
-		case actionType.CHANGE_CURRENT_PAGE:
-			return state.mergeDeep({pagination:{pageNum: action.PageNum}});
-		case actionType.CHANGE_PAGE_SIZE_SETTING:
-			console.log('action.PageSize=' + action.PageSize);
-			return state.mergeDeep({pagination:{pageSize: action.PageSize}});
+		case actionType.CHANGE_PAGE_INFO_SETTING:
+			return state.mergeDeep({pagination:action.pageInfo});
+		case actionType.CHANGE_SORT_INFO_SETTING:
+			return state.mergeDeep({sorting: {sortColumn: action.sortInfo.key, sortOrder: action.sortInfo.direction}});
 		case actionType.LOAD_DATA:
 			console.log("Update loaded data to state.");
 			console.log('commands:');
